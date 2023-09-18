@@ -4,8 +4,8 @@ import com.beust.jcommander.Parameter;
 public class Args {
     @Parameter(names = "-t", description = "Operation type")
     public String operationType = "exit";
-    @Parameter(names = "-i", description = "Index")
-    public int index;
-    @Parameter(names = "-m", description = "Message")
-    public String message;
+    @Parameter(names = "-k", description = "Key")
+    public String key;
+    @Parameter(names = "-v", description = "Value")
+    public String value;
 }

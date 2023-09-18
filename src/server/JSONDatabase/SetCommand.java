@@ -1,18 +1,27 @@
 package server.JSONDatabase;
 
-public class SetCommand implements Command{
-    private Database db;
-    private int index;
-    private String message;
+import com.google.gson.JsonObject;
 
-    public SetCommand(Database db, int index, String message) {
+public class SetCommand implements Command {
+    private JSONDatabase db;
+    private String key;
+    private String value;
+    private JsonObject request;
+
+    @Deprecated
+    public SetCommand(JSONDatabase db, String key, String value) {
         this.db = db;
-        this.index = index;
-        this.message = message;
+        this.key = key;
+        this.value = value;
+    }
+
+    public SetCommand(JSONDatabase db, JsonObject request) {
+        this.db = db;
+        this.request = request;
     }
 
     @Override
-    public String execute() {
-        return db.set(index, message);
+    public JsonObject execute() {
+        return db.set(request);
     }
 }

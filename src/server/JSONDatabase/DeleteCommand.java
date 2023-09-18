@@ -1,16 +1,18 @@
 package server.JSONDatabase;
 
-public class DeleteCommand implements Command{
-    private Database db;
-    private int index;
+import com.google.gson.JsonObject;
 
-    public DeleteCommand(Database db, int index) {
+public class DeleteCommand implements Command{
+    private JSONDatabase db;
+    private JsonObject request;
+
+    public DeleteCommand(JSONDatabase db, JsonObject request) {
         this.db = db;
-        this.index = index;
+        this.request = request;
     }
 
     @Override
-    public String execute() {
-        return db.delete(index);
+    public JsonObject execute() {
+        return db.delete(request);
     }
 }

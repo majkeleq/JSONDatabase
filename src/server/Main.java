@@ -1,5 +1,7 @@
 package server;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import server.JSONDatabase.*;
 
 import javax.xml.crypto.Data;
@@ -17,6 +19,7 @@ public class Main {
 
     public static void main(String[] args) {
         Database db = new Database();
+        JSONDatabase jdb = new JSONDatabase();
         DatabaseController dbController = new DatabaseController();
         Command command;
         String returnMessage = "";
@@ -31,22 +34,24 @@ public class Main {
                         DataOutputStream output = new DataOutputStream(socket.getOutputStream())
                 ) {
                     String msg = input.readUTF();
+                    Gson gson = new Gson();
+                    JsonObject request = gson.fromJson(msg, JsonObject.class);
                     System.out.println("Recieved: " + msg);
-                    String[] commands = msg.split(" ");
-                    switch (commands[0]) {
-                        case "get" -> command = new GetCommand(db, Integer.parseInt(commands[1]));
-                        case "set" ->
-                                command = new SetCommand(db, Integer.parseInt(commands[1]), Arrays.stream(commands).skip(2)
-                                        .reduce("", (partialString, element) -> partialString + " " + element));
-                        case "delete" -> command = new DeleteCommand(db, Integer.parseInt(commands[1]));
-                        default -> command = new ExitCommand();
-                    }
-                    dbController.setCommand(command);
+                    //String[] commands = msg.split(" ");
 
-                    returnMessage = dbController.executeCommand();
-                    output.writeUTF(returnMessage);
-                    System.out.println("Sent: " + returnMessage);
-                    if (commands[0].equals("exit")) break;
+                    switch (request.get("type").getAsString()) {
+                        case "set" -> command = new SetCommand(jdb, request);
+                        case "get" -> command = new GetCommand(jdb, request);
+                            default -> command = new ExitCommand();
+                    }
+
+
+                    dbController.setCommand(command);
+                    JsonObject returnJSON = dbController.executeCommand();
+
+                    output.writeUTF(returnJSON.toString());
+                    System.out.println("Sent: " + returnJSON);
+                    if (request.get("type").getAsString().equals("exit")) break;
                 }
             }
 

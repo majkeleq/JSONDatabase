@@ -1,6 +1,7 @@
 package client;
 
 import com.beust.jcommander.JCommander;
+import com.google.gson.JsonObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,13 +21,19 @@ public class Main {
                 .addObject(jct)
                 .build()
                 .parse(args);
-        String message;
+        JsonObject request = new JsonObject();
+        request.addProperty("type", jct.operationType);
         switch (jct.operationType) {
-            case "get", "delete" -> message = String.format("%s %d", jct.operationType, jct.index);
-            case "set" -> message = String.format(("%s %d %s"), jct.operationType, jct.index, jct.message);
-            case "exit" -> message = String.format("%s", jct.operationType);
-            default -> message = "exit";
+            case "get", "delete" -> request.addProperty("key", jct.key);
+            case "set" -> {
+                request.addProperty("key", jct.key);
+                request.addProperty("value", jct.value);
+            }
         }
+
+        //request.addProperty("type", "get");
+        //request.addProperty("key", "1");
+        //request.addProperty("value", "1 value");
         String address = "127.0.0.1";
         int port = 23456;
         try (
@@ -38,8 +45,8 @@ public class Main {
             //Scanner sc = new Scanner(System.in);
             //String msg = sc.nextLine();
             //String msg = "12";
-            System.out.println("Sent: " + message);
-            output.writeUTF(message);
+            System.out.println("Sent: " + request.toString());
+            output.writeUTF(request.toString());
 
             String receivedMsg = input.readUTF();
 
