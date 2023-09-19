@@ -42,7 +42,14 @@ public class JSONDatabase {
         return response;
     }
     public JsonObject delete(JsonObject request) {
-        System.out.println(db.remove(request.get("key").getAsString()));
-        return new JsonObject();
+        JsonObject response = new JsonObject();
+        JsonElement element = db.remove(request.get("key").getAsString());
+        if (element == null) {
+            response.addProperty("response", "ERROR");
+            response.addProperty("reason", "No such key");
+        } else {
+            response.addProperty("response", "OK");
+        }
+        return response;
     }
 }

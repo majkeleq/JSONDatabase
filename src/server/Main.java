@@ -42,6 +42,7 @@ public class Main {
                     switch (request.get("type").getAsString()) {
                         case "set" -> command = new SetCommand(jdb, request);
                         case "get" -> command = new GetCommand(jdb, request);
+                        case "delete" -> command = new DeleteCommand(jdb, request);
                             default -> command = new ExitCommand();
                     }
 
