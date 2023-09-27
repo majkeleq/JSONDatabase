@@ -8,8 +8,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Scanner;
-import java.util.SimpleTimeZone;
 
 public class Main {
 
@@ -21,17 +19,9 @@ public class Main {
                 .addObject(jct)
                 .build()
                 .parse(args);
-        JsonObject request = new JsonObject();
-        request.addProperty("type", jct.operationType);
-        switch (jct.operationType) {
-            case "get", "delete" -> request.addProperty("key", jct.key);
-            case "set" -> {
-                request.addProperty("key", jct.key);
-                request.addProperty("value", jct.value);
-            }
-        }
+        JsonObject request = new RequestHandler(jct).getRequest();
 
-        //request.addProperty("type", "get");
+        // request.addProperty("type", "set");
         //request.addProperty("key", "1");
         //request.addProperty("value", "1 value");
         String address = "127.0.0.1";
@@ -39,13 +29,11 @@ public class Main {
         try (
                 Socket socket = new Socket(InetAddress.getByName(address), port);
                 DataInputStream input = new DataInputStream(socket.getInputStream());
-                DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+                DataOutputStream output = new DataOutputStream(socket.getOutputStream())
         ) {
             System.out.println("Client started!");
-            //Scanner sc = new Scanner(System.in);
-            //String msg = sc.nextLine();
-            //String msg = "12";
-            System.out.println("Sent: " + request.toString());
+
+            System.out.println("Sent: " + request);
             output.writeUTF(request.toString());
 
             String receivedMsg = input.readUTF();

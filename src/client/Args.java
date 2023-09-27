@@ -8,4 +8,6 @@ public class Args {
     public String key;
     @Parameter(names = "-v", description = "Value")
     public String value;
+    @Parameter(names = "-in", description = "Filename")
+    public String FILENAME;
 }
