@@ -19,11 +19,23 @@ public class Main {
                 .addObject(jct)
                 .build()
                 .parse(args);
-        JsonObject request = new RequestHandler(jct).getRequest();
+        //JsonObject request = new RequestHandler(jct).getRequest();
+        JsonObject request = new JsonObject();
 
-        // request.addProperty("type", "set");
-        //request.addProperty("key", "1");
-        //request.addProperty("value", "1 value");
+        request.addProperty("type", "set");
+        request.addProperty("key", "[\"person1\",\"person1\"]");
+        request.addProperty("value", "Elon");
+        //request.addProperty("value", //"{" +
+                //"      \"name\":\"Elon\"," +
+                //"      \"car\":{" +
+                //"         \"model\":\"Tesla Roadster\"," +
+                //"         \"year\":\"2018\"" +
+                //"      }," +
+                //"      \"rocket\":{" +
+                //"         \"name\":\"Falcon 9\"," +
+                //"         \"launches\":\"87\"" +
+                //"      }" +
+                //"}");
         String address = "127.0.0.1";
         int port = 23456;
         try (
