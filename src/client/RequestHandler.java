@@ -8,7 +8,8 @@ import java.io.FileReader;
 
 public class RequestHandler {
     Args jct;
-    private String FILE_PATH = ".\\src\\client\\data\\";
+    //private String FILE_PATH = ".\\JSON Database (Java)\\task\\src\\client\\data\\";
+    private String FILE_PATH = ".\\src\\client\\data\\";  //FOR TESTING
 
     public RequestHandler(Args jct) {
         this.jct = jct;

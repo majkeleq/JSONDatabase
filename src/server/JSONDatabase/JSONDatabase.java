@@ -14,8 +14,8 @@ public class JSONDatabase {
     ReadWriteLock lock = new ReentrantReadWriteLock();
     Lock readLock = lock.readLock();
     Lock writeLock = lock.writeLock();
-    //private final String FILE_PATH = ".\\src\\server\\data\\db.json"; //FOR STAGE CHECK
-    private final String FILE_PATH = ".\\JSON Database (Java)\\task\\src\\server\\data\\db.json"; //FOR RUNNING
+    private final String FILE_PATH = ".\\src\\server\\data\\db.json"; //FOR STAGE CHECK
+    //private final String FILE_PATH = ".\\JSON Database (Java)\\task\\src\\server\\data\\db.json"; //FOR RUNNING
 
     /**
      * While starting server Database is downloaded from saved file - if the file doesn't exist it create new json object database
@@ -47,11 +47,14 @@ public class JSONDatabase {
      */
     public JsonObject set(JsonObject request) {
         writeLock.lock();
-
+        Gson gson = new Gson();
         //db.add(request.get("key").getAsString(), gson.fromJson(request.get("value").getAsString(), JsonObject.class));
         //System.out.println(db.get("Key"));
         try {
-            getTargetObject(request.get("key")).addProperty(getDeepestKey(request.get("key")), request.get("value").getAsString());
+            // getTargetObject(request.get("key"))
+            JsonObject targetObject = RequestHandler.getTargetObject(request.get("key"), db);
+            RequestHandler.add(targetObject, request.get("key"), request.get("value"));
+                    //.add(RequestHandler.getDeepestKey(request.get("key")), gson.fromJson(request.get("value").getAsString(), JsonObject.class));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,44 +65,6 @@ public class JSONDatabase {
         return response;
     }
 
-    private String getDeepestKey(JsonElement key) {
-        try {
-            JsonArray jsonArray = JsonParser.parseString(key.getAsString()).getAsJsonArray();
-            return jsonArray.get(jsonArray.size() - 1).getAsString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return key.toString();
-        }
-    }
-
-    /**
-     * Method goes through JSON database searching for JsonObject for key or last key from array of keys.
-     * If it is array of keys it creates a tree if it is non-existent and return deepest object
-     * If key param is not an array it return db
-     * @param key key or keys from client
-     * @return JsonObject for deepest key
-     */
-    private JsonObject getTargetObject(JsonElement key) {
-        JsonObject dbLvl = db;
-        try {
-            JsonArray jsonArray = JsonParser.parseString(key.getAsString()).getAsJsonArray();
-            //JsonArray jsonArray = key.getAsJsonArray();
-            int i = 0;
-            while (i != jsonArray.size() - 1) {
-
-                if (dbLvl.getAsJsonObject(jsonArray.get(i).getAsString()) == null) {
-                    dbLvl.add(jsonArray.get(i).getAsString(), new JsonObject());
-                }
-
-                dbLvl = dbLvl.getAsJsonObject(jsonArray.get(i).getAsString());
-                i++;
-            }
-            //dbLvl.addProperty(jsonArray.get(i).toString(), request.get("value").getAsString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return dbLvl;
-    }
 
     /**
      * Method gets key from JSONObject database. Does not read it from db.json
@@ -110,12 +75,13 @@ public class JSONDatabase {
     public JsonObject get(JsonObject request) {
         readLock.lock();
         JsonObject response = new JsonObject();
-        JsonElement element = db.get(request.get("key").getAsString());
-        if (element == null) {
+        //JsonElement element = db.get(request.get("key").getAsString());
+        JsonObject element = RequestHandler.getTargetObject(request.get("key"), db);
+        if (element.get(RequestHandler.getDeepestKey(request.get("key"))) == null) {
             response.addProperty("response", "ERROR");
             response.addProperty("reason", "No such key");
         } else {
-            String record = element.getAsString();
+            String record = element.get(RequestHandler.getDeepestKey(request.get("key"))).getAsString();
             response.addProperty("response", "OK");
             response.addProperty("value", record);
         }
@@ -132,8 +98,9 @@ public class JSONDatabase {
     public JsonObject delete(JsonObject request) {
         writeLock.lock();
         JsonObject response = new JsonObject();
-        JsonElement element = db.remove(request.get("key").getAsString());
-        if (element == null) {
+        //JsonElement element = db.remove(request.get("key").getAsString());
+        JsonObject element = RequestHandler.getTargetObject(request.get("key"), db);
+        if (element.remove(RequestHandler.getDeepestKey(request.get("key"))) == null) {
             response.addProperty("response", "ERROR");
             response.addProperty("reason", "No such key");
         } else {

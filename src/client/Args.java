@@ -9,5 +9,5 @@ public class Args {
     @Parameter(names = "-v", description = "Value")
     public String value;
     @Parameter(names = "-in", description = "Filename")
-    public String FILENAME;
+    public String FILENAME;// = "testGet.json";
 }

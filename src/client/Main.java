@@ -19,12 +19,12 @@ public class Main {
                 .addObject(jct)
                 .build()
                 .parse(args);
-        //JsonObject request = new RequestHandler(jct).getRequest();
-        JsonObject request = new JsonObject();
+        JsonObject request = new RequestHandler(jct).getRequest();
+        //JsonObject request = new JsonObject();
 
-        request.addProperty("type", "set");
-        request.addProperty("key", "[\"person1\",\"person1\"]");
-        request.addProperty("value", "Elon");
+       // request.addProperty("type", "set");
+        //request.addProperty("key", "[\"person1\",\"person3\"]");
+        //request.addProperty("value", "{\"name\":\"Elon\",\"car\":{\"model\":\"Tesla Roadster\"}}");
         //request.addProperty("value", //"{" +
                 //"      \"name\":\"Elon\"," +
                 //"      \"car\":{" +
