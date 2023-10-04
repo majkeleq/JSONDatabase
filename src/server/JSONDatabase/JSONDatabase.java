@@ -47,14 +47,13 @@ public class JSONDatabase {
      */
     public JsonObject set(JsonObject request) {
         writeLock.lock();
-        Gson gson = new Gson();
         //db.add(request.get("key").getAsString(), gson.fromJson(request.get("value").getAsString(), JsonObject.class));
         //System.out.println(db.get("Key"));
         try {
             // getTargetObject(request.get("key"))
             JsonObject targetObject = RequestHandler.getTargetObject(request.get("key"), db);
             RequestHandler.add(targetObject, request.get("key"), request.get("value"));
-                    //.add(RequestHandler.getDeepestKey(request.get("key")), gson.fromJson(request.get("value").getAsString(), JsonObject.class));
+            //.add(RequestHandler.getDeepestKey(request.get("key")), gson.fromJson(request.get("value").getAsString(), JsonObject.class));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,6 +67,8 @@ public class JSONDatabase {
 
     /**
      * Method gets key from JSONObject database. Does not read it from db.json
+     * If value of JsonObject is primitive add it as "value" property to response
+     * If value is another JsonObject add is as "value" object to response
      *
      * @param request request from client
      * @return response from server
@@ -81,9 +82,15 @@ public class JSONDatabase {
             response.addProperty("response", "ERROR");
             response.addProperty("reason", "No such key");
         } else {
-            String record = element.get(RequestHandler.getDeepestKey(request.get("key"))).getAsString();
-            response.addProperty("response", "OK");
-            response.addProperty("value", record);
+            try {
+                JsonElement record = element.get(RequestHandler.getDeepestKey(request.get("key")));
+                response.addProperty("response", "OK");
+                response.addProperty("value", record.getAsString());
+            } catch (Exception e) {
+                JsonObject record = element.getAsJsonObject(RequestHandler.getDeepestKey(request.get("key")));
+                response.addProperty("response", "OK");
+                response.add("value", record);
+            }
         }
         readLock.unlock();
         return response;
